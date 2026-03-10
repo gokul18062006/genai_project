@@ -153,7 +153,7 @@ analysis_schema = {
         },
         "agreementDetails": {
             "type": "object",
-            "description": "If the document is a legal agreement, extract its key details. If it is not a legal agreement (e.g., a court ruling, a letter), return null for this entire object.",
+            "description": "ONLY if the document is a formal legal agreement (contract, lease, employment agreement, etc.), extract its key details. If it is NOT a legal agreement (court ruling, letter, notice, policy document, informational text, etc.), you MUST return null for this field.",
             "nullable": True,
             "properties": {
                 "agreementType": {"type": "string", "description": "The type of agreement (e.g., 'Employment Agreement', 'Lease Agreement')."},
@@ -161,11 +161,10 @@ analysis_schema = {
                 "effectiveDate": {"type": "string", "description": "The effective or start date of the agreement."},
                 "term": {"type": "string", "description": "The term or duration of the agreement."},
                 "governingLaw": {"type": "string", "description": "The governing law or jurisdiction of the agreement (e.g., 'State of California, USA', 'Republic of India')."}
-            },
-            "required": ["agreementType", "parties", "effectiveDate", "term", "governingLaw"]
+            }
         }
     },
-    "required": ["simplifiedText", "summary", "keyClauses", "riskAnalysis", "agreementDetails"]
+    "required": ["simplifiedText", "summary", "keyClauses", "riskAnalysis"]
 }
 
 @app.get("/")
@@ -178,20 +177,25 @@ async def analyze_document(request: AnalyzeDocumentRequest):
     try:
         prompt = """Analyze the following legal document from the perspective of an Indian legal expert. Your task is to simplify it, summarize it, extract key clauses, perform a detailed risk analysis, and identify its core agreement details. Provide the output in a structured JSON format.
 
-If the document is a formal legal agreement, extract the following details:
-- The type of agreement.
-- The parties involved.
-- The effective date.
-- The term/duration.
-- The governing law.
-If the document is not a formal agreement, please return null for the 'agreementDetails' field.
+IMPORTANT - Agreement Details:
+- ONLY populate 'agreementDetails' if the document is a FORMAL LEGAL AGREEMENT (contract, lease, employment agreement, sale agreement, service agreement, etc.) between two or more parties.
+- If the document is any of the following, return null for 'agreementDetails':
+  * Court rulings or judgments
+  * Legal notices or letters
+  * Policy documents or guidelines
+  * Informational documents
+  * General legal text without parties and signatures
+  * Any document that is NOT a binding agreement between parties
+- If it IS a formal agreement, extract: agreement type, parties involved, effective date, term/duration, and governing law.
 
 For the risk analysis, for each identified risk, you must provide:
 1.  **Risk**: A description of the potential risk.
 2.  **Mitigation**: A solution on how to overcome the risk.
 3.  **Severity**: The severity of the risk, classified as 'High', 'Medium', or 'Low'.
-4.  **Applicable Law**: The relevant Indian laws under which the agreement has been made.
-5.  **Punishment**: The punishment under the Indian constitution or relevant laws if the rules or agreement are violated."""
+4.  **Applicable Law**: The relevant Indian laws that apply to this document or provision.
+5.  **Punishment**: The potential legal consequences or penalties under Indian law if violated.
+
+Remember: Return agreementDetails as null for non-agreement documents."""
 
         # Build the request content
         if request.file:
