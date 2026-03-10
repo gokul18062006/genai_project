@@ -1,11 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import type { Chat } from '@google/genai';
 import { Header } from './components/Header';
 import { DocumentInput } from './components/DocumentInput';
 import { AnalysisOutput } from './components/AnalysisOutput';
 import { ChatInterface } from './components/ChatInterface';
 import type { AnalysisResult, ChatMessage, UploadedFile } from '../types';
-import { analyzeDocument, translateText, createChatSession, continueChat } from '../backend/services/geminiService';
+import { analyzeDocument, translateText, createChatSession, continueChat } from '../backend/services/apiService';
 import { LANGUAGES } from './constants';
 import { Icon } from './components/Icon';
 
@@ -20,7 +19,7 @@ const App: React.FC = () => {
     const [translatedText, setTranslatedText] = useState<string>('');
     const [isTranslating, setIsTranslating] = useState<boolean>(false);
 
-    const [chatSession, setChatSession] = useState<Chat | null>(null);
+    const [chatSessionId, setChatSessionId] = useState<string | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [isChatting, setIsChatting] = useState<boolean>(false);
 
@@ -34,7 +33,7 @@ const App: React.FC = () => {
         setAnalysisResult(null);
         setTranslatedText('');
         setChatMessages([]);
-        setChatSession(null);
+        setChatSessionId(null);
 
         try {
             const analysisPayload = { documentText: documentText.trim(), file: uploadedFile };
@@ -42,8 +41,8 @@ const App: React.FC = () => {
             setAnalysisResult(result);
 
             // Initialize chat session after successful analysis
-            const chat = await createChatSession(analysisPayload);
-            setChatSession(chat);
+            const sessionId = await createChatSession(analysisPayload);
+            setChatSessionId(sessionId);
             setChatMessages([{ sender: 'ai', text: 'I have read the document. How can I help you?' }]);
 
         } catch (err) {
@@ -72,7 +71,7 @@ const App: React.FC = () => {
     }, [analysisResult, targetLanguage]);
 
     const handleSendMessage = useCallback(async (message: string) => {
-        if (!chatSession) {
+        if (!chatSessionId) {
             setError('Chat session not initialized. Please analyze a document first.');
             return;
         }
@@ -81,7 +80,7 @@ const App: React.FC = () => {
         setIsChatting(true);
 
         try {
-            const response = await continueChat(chatSession, message);
+            const response = await continueChat(chatSessionId, message);
             setChatMessages(prev => [...prev, { sender: 'ai', text: response }]);
         } catch (err)
  {
@@ -90,7 +89,7 @@ const App: React.FC = () => {
         } finally {
             setIsChatting(false);
         }
-    }, [chatSession]);
+    }, [chatSessionId]);
 
 
     return (

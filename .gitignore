@@ -7,18 +7,74 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
+
+# Environment variables
 *.local
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Python IDE
+.vscode/
+.idea/
+*.pyc
+*.pyo
+*.pyd
+
+# Backend specific
+backend/.env
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+
+# Build outputs
+*.tmp
+*.cache
+.output/
+.nuxt/
+.next/
+out/
+
+# Testing
+coverage/
+.nyc_output/
+*.coverage
+htmlcov/
