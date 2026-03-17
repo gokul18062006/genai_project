@@ -13,10 +13,15 @@ load_dotenv()
 
 app = FastAPI(title="LegalEase AI Backend")
 
-# CORS Configuration - Allow frontend to communicate
+# CORS Configuration - Allow frontend to communicate locally and in production
+default_origins = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"]
+configured_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",") if origin.strip()]
+allowed_origins = list(dict.fromkeys(default_origins + configured_origins))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+    allow_origins=allowed_origins,
+    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", r"https://.*\.onrender\.com"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -323,4 +328,4 @@ async def send_chat_message(request: ChatMessageRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8000")))
