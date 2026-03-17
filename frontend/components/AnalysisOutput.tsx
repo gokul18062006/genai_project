@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import type { AnalysisResult, RiskItem } from '../types';
+import type { AnalysisResult, RiskItem } from '../../types';
 import { LanguageSelector } from './LanguageSelector';
 import { Loader } from './Loader';
 import { Icon } from './Icon';
@@ -60,7 +60,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
     
     const tabs: { id: Tab, label: string, icon: string }[] = [
         { id: 'risk', label: 'Risk Analysis', icon: 'risk' },
-        { id: 'agreement', label: 'Agreement Details', icon: 'signature' },
+        { id: 'agreement', label: 'Document Details', icon: 'signature' },
         { id: 'simplified', label: 'Simplified Text', icon: 'document' },
         { id: 'summary', label: 'Summary', icon: 'summary' },
         { id: 'clauses', label: 'Key Clauses', icon: 'key' },
@@ -142,37 +142,37 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                 )}
                  {activeTab === 'agreement' && (
                     <div>
-                        <h3 className="text-lg font-semibold mb-4 text-slate-800">Agreement Core Details</h3>
-                        {analysis.agreementDetails ? (
-                            <ul className="space-y-3">
-                                <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
-                                    <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Agreement Type:</strong>
-                                    <span className="w-full sm:w-2/3 text-slate-800">{analysis.agreementDetails.agreementType}</span>
-                                </li>
-                                <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
-                                    <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Parties Involved:</strong>
-                                    <span className="w-full sm:w-2/3 text-slate-800">{analysis.agreementDetails.parties.join(', ')}</span>
-                                </li>
-                                <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
-                                    <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Effective Date:</strong>
-                                    <span className="w-full sm:w-2/3 text-slate-800">{analysis.agreementDetails.effectiveDate}</span>
-                                </li>
-                                <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
-                                    <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Term / Duration:</strong>
-                                    <span className="w-full sm:w-2/3 text-slate-800">{analysis.agreementDetails.term}</span>
-                                </li>
-                                <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
-                                    <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Governing Law:</strong>
-                                    <span className="w-full sm:w-2/3 text-slate-800">{analysis.agreementDetails.governingLaw}</span>
-                                </li>
-                            </ul>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center p-8 text-center bg-blue-50 rounded-lg border border-blue-200">
-                                <Icon name="file" className="h-12 w-12 text-blue-500" />
-                                <h4 className="mt-4 font-semibold text-blue-800">Not an Agreement</h4>
-                                <p className="text-slate-600">This document does not appear to be a structured legal agreement, so key details could not be extracted automatically.</p>
-                            </div>
-                        )}
+                        <h3 className="text-lg font-semibold mb-4 text-slate-800">Document Details</h3>
+                        <ul className="space-y-3">
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                                <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Document Type:</strong>
+                                <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.documentType}</span>
+                            </li>
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                                <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Parties / Entities:</strong>
+                                <span className="w-full sm:w-2/3 text-slate-800">
+                                    {analysis.documentDetails.partiesOrEntities.length > 0
+                                        ? analysis.documentDetails.partiesOrEntities.join(', ')
+                                        : 'Not specified'}
+                                </span>
+                            </li>
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                                <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Date:</strong>
+                                <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.date}</span>
+                            </li>
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                                <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Duration / Term:</strong>
+                                <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.duration}</span>
+                            </li>
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                                <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Jurisdiction:</strong>
+                                <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.jurisdiction}</span>
+                            </li>
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                                <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Purpose:</strong>
+                                <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.purpose}</span>
+                            </li>
+                        </ul>
                     </div>
                 )}
                 {activeTab === 'simplified' && (

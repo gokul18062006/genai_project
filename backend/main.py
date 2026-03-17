@@ -54,19 +54,20 @@ class RiskItem(BaseModel):
     applicableLaw: str
     punishment: str
 
-class AgreementDetails(BaseModel):
-    agreementType: str
-    parties: List[str]
-    effectiveDate: str
-    term: str
-    governingLaw: str
+class DocumentDetails(BaseModel):
+    documentType: str
+    partiesOrEntities: List[str]
+    date: str
+    duration: str
+    jurisdiction: str
+    purpose: str
 
 class AnalysisResult(BaseModel):
     simplifiedText: str
     summary: str
     keyClauses: List[KeyClause]
     riskAnalysis: List[RiskItem]
-    agreementDetails: Optional[AgreementDetails]
+    documentDetails: DocumentDetails
 
 class TranslateRequest(BaseModel):
     text: str
@@ -151,20 +152,21 @@ analysis_schema = {
                 "required": ["risk", "mitigation", "severity", "applicableLaw", "punishment"]
             }
         },
-        "agreementDetails": {
+        "documentDetails": {
             "type": "object",
-            "description": "ONLY if the document is a formal legal agreement (contract, lease, employment agreement, etc.), extract its key details. If it is NOT a legal agreement (court ruling, letter, notice, policy document, informational text, etc.), you MUST return null for this field.",
-            "nullable": True,
+            "description": "Key details extracted from the document. Always populate all fields regardless of document type.",
             "properties": {
-                "agreementType": {"type": "string", "description": "The type of agreement (e.g., 'Employment Agreement', 'Lease Agreement')."},
-                "parties": {"type": "array", "items": {"type": "string"}, "description": "The names of the parties involved in the agreement."},
-                "effectiveDate": {"type": "string", "description": "The effective or start date of the agreement."},
-                "term": {"type": "string", "description": "The term or duration of the agreement."},
-                "governingLaw": {"type": "string", "description": "The governing law or jurisdiction of the agreement (e.g., 'State of California, USA', 'Republic of India')."}
-            }
+                "documentType": {"type": "string", "description": "The type of document (e.g., 'Employment Agreement', 'Court Order', 'Legal Notice', 'Sale Deed', 'Rental Agreement', 'Policy Document', etc.)."},
+                "partiesOrEntities": {"type": "array", "items": {"type": "string"}, "description": "All parties, persons, organizations, or entities mentioned in the document."},
+                "date": {"type": "string", "description": "The date, effective date, or issue date of the document. Use 'Not specified' if none found."},
+                "duration": {"type": "string", "description": "The term or duration of the document (e.g., '1 year', '6 months'). Use 'Not applicable' if no duration."},
+                "jurisdiction": {"type": "string", "description": "The governing law or jurisdiction stated in the document. Use 'Not specified' if none."},
+                "purpose": {"type": "string", "description": "A brief one-sentence description of the document's main purpose or subject matter."}
+            },
+            "required": ["documentType", "partiesOrEntities", "date", "duration", "jurisdiction", "purpose"]
         }
     },
-    "required": ["simplifiedText", "summary", "keyClauses", "riskAnalysis"]
+    "required": ["simplifiedText", "summary", "keyClauses", "riskAnalysis", "documentDetails"]
 }
 
 @app.get("/")
@@ -175,27 +177,22 @@ def read_root():
 async def analyze_document(request: AnalyzeDocumentRequest):
     """Analyze a legal document and return structured analysis"""
     try:
-        prompt = """Analyze the following legal document from the perspective of an Indian legal expert. Your task is to simplify it, summarize it, extract key clauses, perform a detailed risk analysis, and identify its core agreement details. Provide the output in a structured JSON format.
+        prompt = """Analyze the following document from the perspective of an Indian legal expert. Your task is to simplify it, summarize it, extract key clauses, perform a detailed risk analysis, and extract its document details. Provide the output in a structured JSON format.
 
-IMPORTANT - Agreement Details:
-- ONLY populate 'agreementDetails' if the document is a FORMAL LEGAL AGREEMENT (contract, lease, employment agreement, sale agreement, service agreement, etc.) between two or more parties.
-- If the document is any of the following, return null for 'agreementDetails':
-  * Court rulings or judgments
-  * Legal notices or letters
-  * Policy documents or guidelines
-  * Informational documents
-  * General legal text without parties and signatures
-  * Any document that is NOT a binding agreement between parties
-- If it IS a formal agreement, extract: agreement type, parties involved, effective date, term/duration, and governing law.
+Document Details (ALWAYS populate for any document type):
+- documentType: Identify what kind of document this is (e.g., 'Employment Agreement', 'Court Order', 'Legal Notice', 'Sale Deed', 'Rental Agreement', 'Affidavit', 'Power of Attorney', etc.).
+- partiesOrEntities: List ALL persons, organizations, companies, or government entities mentioned.
+- date: The document's date, issue date, or effective date (or 'Not specified' if absent).
+- duration: The term or duration if applicable (or 'Not applicable').
+- jurisdiction: The governing law or jurisdiction (or 'Not specified').
+- purpose: One sentence describing the document's main purpose.
 
 For the risk analysis, for each identified risk, you must provide:
 1.  **Risk**: A description of the potential risk.
 2.  **Mitigation**: A solution on how to overcome the risk.
 3.  **Severity**: The severity of the risk, classified as 'High', 'Medium', or 'Low'.
 4.  **Applicable Law**: The relevant Indian laws that apply to this document or provision.
-5.  **Punishment**: The potential legal consequences or penalties under Indian law if violated.
-
-Remember: Return agreementDetails as null for non-agreement documents."""
+5.  **Punishment**: The potential legal consequences or penalties under Indian law if violated."""
 
         # Build the request content
         if request.file:

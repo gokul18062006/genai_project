@@ -13,12 +13,13 @@ export interface RiskItem {
     punishment: string;
 }
 
-export interface AgreementDetails {
-    agreementType: string;
-    parties: string[];
-    effectiveDate: string;
-    term: string;
-    governingLaw: string;
+export interface DocumentDetails {
+    documentType: string;
+    partiesOrEntities: string[];
+    date: string;
+    duration: string;
+    jurisdiction: string;
+    purpose: string;
 }
 
 export interface AnalysisResult {
@@ -26,7 +27,7 @@ export interface AnalysisResult {
   summary: string;
   keyClauses: KeyClause[];
   riskAnalysis: RiskItem[];
-  agreementDetails: AgreementDetails | null;
+  documentDetails: DocumentDetails;
 }
 
 export interface ChatMessage {
