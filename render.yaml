@@ -9,14 +9,15 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: CORS_ORIGINS
-        value: https://legalease-frontend.onrender.com,http://localhost:5173
+        value: https://legalease-frontend.onrender.com
+      - key: PORT
+        value: "8000"
 
-  - type: web
+  - type: static_site
     name: legalease-frontend
-    runtime: static
     rootDir: .
     buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    publishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
         value: https://legalease-backend.onrender.com
