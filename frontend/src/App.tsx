@@ -7,7 +7,6 @@ import type { AnalysisResult, ChatMessage, UploadedFile } from './types';
 import { analyzeDocument, translateText, createChatSession, continueChat } from './services/apiService';
 import { LANGUAGES } from './constants';
 import { Icon } from './components/Icon';
-
 const App: React.FC = () => {
     const [documentText, setDocumentText] = useState<string>('');
     const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
@@ -47,7 +46,8 @@ const App: React.FC = () => {
 
         } catch (err) {
             console.error(err);
-            setError('Failed to analyze the document. Please check your API key and try again.');
+            const message = err instanceof Error ? err.message : 'Failed to analyze the document.';
+            setError(`Failed to analyze the document: ${message}`);
         } finally {
             setIsLoading(false);
         }
