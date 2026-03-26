@@ -21,7 +21,13 @@ load_dotenv()
 app = FastAPI(title="LegalEase AI Backend")
 
 # CORS Configuration - Allow frontend to communicate locally and in production
-default_origins = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"]
+default_origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+]
 configured_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",") if origin.strip()]
 allowed_origins = list(dict.fromkeys(default_origins + configured_origins))
 
@@ -53,6 +59,7 @@ HISTORY_WINDOW = int(os.getenv("RAG_HISTORY_WINDOW", "6"))
 # VLM settings for scanned/image-heavy PDFs
 VLM_ENABLED = os.getenv("VLM_ENABLED", "true").strip().lower() in {"1", "true", "yes", "on"}
 VLM_MODEL = os.getenv("VLM_MODEL", "gemini-2.5-flash")
+VLM_PDF_STRATEGY = os.getenv("VLM_PDF_STRATEGY", "always").strip().lower()
 VLM_MIN_EXTRACTED_CHARS = int(os.getenv("VLM_MIN_EXTRACTED_CHARS", "1200"))
 VLM_MIN_TEXT_PAGE_RATIO = float(os.getenv("VLM_MIN_TEXT_PAGE_RATIO", "0.5"))
 
@@ -270,6 +277,12 @@ def _extract_text_from_uploaded_file(uploaded_file: UploadedFile) -> str:
     name = (uploaded_file.name or "").lower()
 
     if mime == "application/pdf" or name.endswith(".pdf"):
+        # Strategy: run VLM first for PDFs when requested (best for scanned/image-heavy docs).
+        if VLM_ENABLED and VLM_PDF_STRATEGY == "always":
+            vlm_text = _extract_pdf_text_with_vlm(raw)
+            if vlm_text:
+                return vlm_text
+
         reader = PdfReader(BytesIO(raw))
         page_count = len(reader.pages)
         pages: List[str] = []
