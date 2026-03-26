@@ -319,6 +319,53 @@ def _extract_document_text(document_text: str, uploaded_file: Optional[UploadedF
     return _normalize_whitespace(document_text or "")
 
 
+def _analyze_with_text_prompt(prompt: str, document_text: str) -> Dict[str, Any]:
+    contents = f"{prompt}\n{document_text}\n---"
+    response = client.models.generate_content(
+        model=ANALYSIS_MODEL,
+        contents=contents,
+        config=GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=analysis_schema
+        )
+    )
+    return json.loads(response.text)
+
+
+def _analyze_with_pdf_part(prompt: str, uploaded_file: UploadedFile) -> Dict[str, Any]:
+    file_bytes = base64.b64decode(uploaded_file.data)
+    response = client.models.generate_content(
+        model=ANALYSIS_MODEL,
+        contents=[
+            prompt,
+            Part.from_bytes(data=file_bytes, mime_type=uploaded_file.mimeType or "application/pdf")
+        ],
+        config=GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=analysis_schema
+        )
+    )
+    return json.loads(response.text)
+
+
+def _looks_like_empty_analysis(result: Dict[str, Any]) -> bool:
+    simplified = str(result.get("simplifiedText", "")).lower()
+    summary = str(result.get("summary", "")).lower()
+    key_clauses = result.get("keyClauses") or []
+    details = result.get("documentDetails") or {}
+    doc_type = str(details.get("documentType", "")).strip().lower()
+
+    empty_markers = [
+        "document provided is empty",
+        "contains no text",
+        "cannot be summarized",
+        "no text or information"
+    ]
+    marker_hit = any(marker in simplified or marker in summary for marker in empty_markers)
+    low_information = (len(key_clauses) == 0 and (doc_type in {"", "not specified", "unknown"}))
+    return marker_hit or low_information
+
+
 def _chunk_document(text: str) -> List[Dict[str, Any]]:
     if not text:
         return []
@@ -573,10 +620,6 @@ def read_root():
 async def analyze_document(request: AnalyzeDocumentRequest):
     """Analyze a legal document and return structured analysis"""
     try:
-        document_text = _extract_document_text(request.documentText or "", request.file)
-        if not document_text:
-            raise HTTPException(status_code=400, detail="Please provide legal text or upload a document.")
-
         prompt = """Analyze the following document from the perspective of an Indian legal expert. Your task is to simplify it, summarize it, extract key clauses, perform a detailed risk analysis, and extract its document details. Provide the output in a structured JSON format.
 
 Document Details (ALWAYS populate for any document type):
@@ -598,18 +641,28 @@ Document:
 ---
 """
 
-        contents = f"{prompt}\n{document_text}\n---"
+        is_pdf_upload = bool(request.file and ((request.file.mimeType or "").lower() == "application/pdf" or (request.file.name or "").lower().endswith(".pdf")))
 
-        response = client.models.generate_content(
-            model=ANALYSIS_MODEL,
-            contents=contents,
-            config=GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=analysis_schema
-            )
-        )
+        try:
+            document_text = _extract_document_text(request.documentText or "", request.file)
+        except HTTPException:
+            # For scanned PDFs, extraction can fail; let multimodal analysis read the file directly.
+            if is_pdf_upload and request.file:
+                result = _analyze_with_pdf_part(prompt, request.file)
+                return result
+            raise
 
-        result = json.loads(response.text)
+        if not document_text:
+            raise HTTPException(status_code=400, detail="Please provide legal text or upload a document.")
+
+        result = _analyze_with_text_prompt(prompt, document_text)
+
+        # If extracted text analysis looks empty for PDFs, retry directly with PDF bytes.
+        if is_pdf_upload and request.file and _looks_like_empty_analysis(result):
+            retry_result = _analyze_with_pdf_part(prompt, request.file)
+            if not _looks_like_empty_analysis(retry_result):
+                return retry_result
+
         return result
 
     except HTTPException:
