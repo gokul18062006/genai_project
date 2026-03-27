@@ -63,6 +63,55 @@ VLM_PDF_STRATEGY = os.getenv("VLM_PDF_STRATEGY", "always").strip().lower()
 VLM_MIN_EXTRACTED_CHARS = int(os.getenv("VLM_MIN_EXTRACTED_CHARS", "1200"))
 VLM_MIN_TEXT_PAGE_RATIO = float(os.getenv("VLM_MIN_TEXT_PAGE_RATIO", "0.5"))
 
+# Large-document analysis performance profiles
+# fast: lower latency, lower coverage
+# balanced: default trade-off
+# deep: higher coverage, higher latency/cost
+ANALYZE_PERF_PROFILE = os.getenv("ANALYZE_PERF_PROFILE", "balanced").strip().lower()
+_ANALYZE_PROFILES: Dict[str, Dict[str, int]] = {
+    "fast": {
+        "direct_char_limit": 22000,
+        "chunk_char_limit": 9000,
+        "chunk_overlap": 800,
+        "max_chunks": 12,
+        "max_key_clauses": 28,
+        "max_risks": 20,
+        "hard_char_limit": 220000,
+        "max_simplified_chars": 14000,
+    },
+    "balanced": {
+        "direct_char_limit": 32000,
+        "chunk_char_limit": 12000,
+        "chunk_overlap": 1200,
+        "max_chunks": 20,
+        "max_key_clauses": 40,
+        "max_risks": 30,
+        "hard_char_limit": 500000,
+        "max_simplified_chars": 26000,
+    },
+    "deep": {
+        "direct_char_limit": 42000,
+        "chunk_char_limit": 14000,
+        "chunk_overlap": 1600,
+        "max_chunks": 32,
+        "max_key_clauses": 60,
+        "max_risks": 45,
+        "hard_char_limit": 900000,
+        "max_simplified_chars": 42000,
+    },
+}
+_analyze_profile = _ANALYZE_PROFILES.get(ANALYZE_PERF_PROFILE, _ANALYZE_PROFILES["balanced"])
+
+# Large-document analysis settings (profile defaults, env overrides supported)
+ANALYZE_DIRECT_CHAR_LIMIT = int(os.getenv("ANALYZE_DIRECT_CHAR_LIMIT", str(_analyze_profile["direct_char_limit"])))
+ANALYZE_CHUNK_CHAR_LIMIT = int(os.getenv("ANALYZE_CHUNK_CHAR_LIMIT", str(_analyze_profile["chunk_char_limit"])))
+ANALYZE_CHUNK_OVERLAP = int(os.getenv("ANALYZE_CHUNK_OVERLAP", str(_analyze_profile["chunk_overlap"])))
+ANALYZE_MAX_CHUNKS = int(os.getenv("ANALYZE_MAX_CHUNKS", str(_analyze_profile["max_chunks"])))
+ANALYZE_MAX_KEY_CLAUSES = int(os.getenv("ANALYZE_MAX_KEY_CLAUSES", str(_analyze_profile["max_key_clauses"])))
+ANALYZE_MAX_RISKS = int(os.getenv("ANALYZE_MAX_RISKS", str(_analyze_profile["max_risks"])))
+ANALYZE_HARD_CHAR_LIMIT = int(os.getenv("ANALYZE_HARD_CHAR_LIMIT", str(_analyze_profile["hard_char_limit"])))
+ANALYZE_MAX_SIMPLIFIED_CHARS = int(os.getenv("ANALYZE_MAX_SIMPLIFIED_CHARS", str(_analyze_profile["max_simplified_chars"])))
+
 STOPWORDS: Set[str] = {
     "a", "an", "the", "and", "or", "to", "of", "in", "on", "for", "with", "as", "by", "from",
     "at", "is", "are", "was", "were", "be", "been", "being", "this", "that", "it", "its", "if",
@@ -332,6 +381,196 @@ def _extract_document_text(document_text: str, uploaded_file: Optional[UploadedF
     return _normalize_whitespace(document_text or "")
 
 
+def _run_structured_analysis(contents: str) -> Dict[str, Any]:
+    response = client.models.generate_content(
+        model=ANALYSIS_MODEL,
+        contents=contents,
+        config=GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=analysis_schema
+        )
+    )
+    return json.loads(response.text)
+
+
+def _chunk_text_for_analysis(text: str, chunk_limit: int, overlap: int) -> List[str]:
+    if len(text) <= chunk_limit:
+        return [text]
+
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    chunks: List[str] = []
+    buffer = ""
+
+    for para in paragraphs:
+        candidate = para if not buffer else f"{buffer}\n\n{para}"
+        if len(candidate) <= chunk_limit:
+            buffer = candidate
+            continue
+
+        if buffer:
+            chunks.append(buffer.strip())
+            overlap_seed = buffer[-overlap:] if overlap > 0 else ""
+            buffer = (overlap_seed + "\n\n" + para).strip()
+            if len(buffer) > chunk_limit:
+                buffer = para
+        else:
+            step = max(500, chunk_limit - overlap)
+            start = 0
+            while start < len(para):
+                part = para[start:start + chunk_limit].strip()
+                if not part:
+                    break
+                chunks.append(part)
+                start += step
+
+    if buffer:
+        chunks.append(buffer.strip())
+
+    return chunks
+
+
+def _is_default_like(value: str) -> bool:
+    norm = (value or "").strip().lower()
+    return norm in {"", "not specified", "not applicable", "unknown", "none"}
+
+
+def _default_analysis_payload() -> Dict[str, Any]:
+    return {
+        "simplifiedText": "",
+        "summary": "",
+        "keyClauses": [],
+        "riskAnalysis": [],
+        "documentDetails": {
+            "documentType": "Not specified",
+            "partiesOrEntities": [],
+            "date": "Not specified",
+            "duration": "Not applicable",
+            "jurisdiction": "Not specified",
+            "purpose": "Not specified",
+        },
+    }
+
+
+def _merge_analysis_payload(aggregated: Dict[str, Any], partial: Dict[str, Any]) -> None:
+    partial_simplified = (partial.get("simplifiedText") or "").strip()
+    if partial_simplified:
+        if aggregated["simplifiedText"]:
+            aggregated["simplifiedText"] += "\n\n" + partial_simplified
+        else:
+            aggregated["simplifiedText"] = partial_simplified
+
+    partial_summary = (partial.get("summary") or "").strip()
+    if partial_summary:
+        if aggregated["summary"]:
+            aggregated["summary"] += "\n" + partial_summary
+        else:
+            aggregated["summary"] = partial_summary
+
+    existing_clause_keys = {str(item.get("clause", "")).strip().lower() for item in aggregated["keyClauses"]}
+    for item in partial.get("keyClauses", []):
+        clause_key = str(item.get("clause", "")).strip().lower()
+        if clause_key and clause_key not in existing_clause_keys:
+            aggregated["keyClauses"].append(item)
+            existing_clause_keys.add(clause_key)
+            if len(aggregated["keyClauses"]) >= ANALYZE_MAX_KEY_CLAUSES:
+                break
+
+    existing_risk_keys = {str(item.get("risk", "")).strip().lower() for item in aggregated["riskAnalysis"]}
+    for item in partial.get("riskAnalysis", []):
+        risk_key = str(item.get("risk", "")).strip().lower()
+        if risk_key and risk_key not in existing_risk_keys:
+            aggregated["riskAnalysis"].append(item)
+            existing_risk_keys.add(risk_key)
+            if len(aggregated["riskAnalysis"]) >= ANALYZE_MAX_RISKS:
+                break
+
+    partial_details = partial.get("documentDetails", {}) or {}
+    target_details = aggregated["documentDetails"]
+    for field in ["documentType", "date", "duration", "jurisdiction", "purpose"]:
+        incoming = str(partial_details.get(field, "")).strip()
+        if incoming and _is_default_like(target_details.get(field, "")) and not _is_default_like(incoming):
+            target_details[field] = incoming
+
+    incoming_parties = partial_details.get("partiesOrEntities", []) or []
+    existing_parties = {str(p).strip().lower() for p in target_details.get("partiesOrEntities", [])}
+    for party in incoming_parties:
+        party_text = str(party).strip()
+        if not party_text:
+            continue
+        if party_text.lower() not in existing_parties:
+            target_details["partiesOrEntities"].append(party_text)
+            existing_parties.add(party_text.lower())
+
+
+def _analyze_large_document(prompt: str, document_text: str) -> Dict[str, Any]:
+    original_len = len(document_text)
+    text_for_analysis = document_text[:ANALYZE_HARD_CHAR_LIMIT]
+    chunks = _chunk_text_for_analysis(text_for_analysis, ANALYZE_CHUNK_CHAR_LIMIT, ANALYZE_CHUNK_OVERLAP)
+    chunks = chunks[:ANALYZE_MAX_CHUNKS]
+
+    aggregated = _default_analysis_payload()
+    total = len(chunks)
+    success_count = 0
+
+    for idx, chunk in enumerate(chunks, start=1):
+        chunk_prompt = (
+            f"{prompt}\n"
+            f"NOTE: This is chunk {idx} of {total} from a large document. "
+            f"Analyze this chunk accurately; do not assume content outside this chunk. "
+            f"Keep chunk output concise: max 4 key clauses and max 3 risks for this chunk.\n\n"
+            f"Document:\n---\n{chunk}\n---"
+        )
+        try:
+            partial = _run_structured_analysis(chunk_prompt)
+            _merge_analysis_payload(aggregated, partial)
+            success_count += 1
+        except Exception as err:
+            print(f"Chunk analysis failed for chunk {idx}/{total}: {err}")
+            continue
+
+    if success_count == 0:
+        raise ValueError("Unable to analyze document chunks. Please try a smaller file or retry.")
+
+    if not aggregated["simplifiedText"]:
+        aggregated["simplifiedText"] = "Unable to generate simplified text from the provided document."
+    elif len(aggregated["simplifiedText"]) > ANALYZE_MAX_SIMPLIFIED_CHARS:
+        aggregated["simplifiedText"] = aggregated["simplifiedText"][:ANALYZE_MAX_SIMPLIFIED_CHARS].rstrip() + "..."
+
+    if aggregated["summary"]:
+        summary_lines = [line.strip() for line in aggregated["summary"].splitlines() if line.strip()]
+        aggregated["summary"] = " ".join(summary_lines[:8])
+    else:
+        aggregated["summary"] = "Summary could not be generated for this document."
+
+    if len(aggregated["keyClauses"]) > ANALYZE_MAX_KEY_CLAUSES:
+        aggregated["keyClauses"] = aggregated["keyClauses"][:ANALYZE_MAX_KEY_CLAUSES]
+
+    if len(aggregated["riskAnalysis"]) > ANALYZE_MAX_RISKS:
+        aggregated["riskAnalysis"] = aggregated["riskAnalysis"][:ANALYZE_MAX_RISKS]
+
+    coverage_notes: List[str] = []
+    if original_len > ANALYZE_HARD_CHAR_LIMIT:
+        coverage_notes.append(
+            f"Only the first {ANALYZE_HARD_CHAR_LIMIT} characters were analyzed due to file size limits."
+        )
+    analyzed_chunks_estimate = len(chunks)
+    if analyzed_chunks_estimate >= ANALYZE_MAX_CHUNKS:
+        coverage_notes.append(
+            f"Analysis considered up to {ANALYZE_MAX_CHUNKS} chunks to keep response time stable."
+        )
+    if success_count < total:
+        coverage_notes.append(
+            f"{total - success_count} chunk(s) could not be processed and were skipped."
+        )
+    if coverage_notes:
+        aggregated["summary"] = aggregated["summary"].strip() + "\n\n" + " ".join(coverage_notes)
+
+    if not aggregated["documentDetails"]["partiesOrEntities"]:
+        aggregated["documentDetails"]["partiesOrEntities"] = ["Not specified"]
+
+    return aggregated
+
+
 def _chunk_document(text: str) -> List[Dict[str, Any]]:
     if not text:
         return []
@@ -590,7 +829,7 @@ async def analyze_document(request: AnalyzeDocumentRequest):
         if not document_text:
             raise HTTPException(status_code=400, detail="Please provide legal text or upload a document.")
 
-        prompt = """Analyze the following document from the perspective of an Indian legal expert. Your task is to simplify it, summarize it, extract key clauses, perform a detailed risk analysis, and extract its document details. Provide the output in a structured JSON format.
+        prompt_base = """Analyze the following document from the perspective of an Indian legal expert. Your task is to simplify it, summarize it, extract key clauses, perform a detailed risk analysis, and extract its document details. Provide the output in a structured JSON format.
 
 Document Details (ALWAYS populate for any document type):
 - documentType: Identify what kind of document this is (e.g., Employment Agreement, Court Order, Legal Notice, Sale Deed, Rental Agreement, Affidavit, Power of Attorney, etc.).
@@ -606,23 +845,14 @@ For the risk analysis, for each identified risk, you must provide:
 3) Severity: One of High, Medium, or Low.
 4) Applicable Law: Relevant Indian law.
 5) Punishment: Potential legal consequence if violated.
-
-Document:
----
 """
 
-        contents = f"{prompt}\n{document_text}\n---"
+        if len(document_text) <= ANALYZE_DIRECT_CHAR_LIMIT:
+            contents = f"{prompt_base}\n\nDocument:\n---\n{document_text}\n---"
+            result = _run_structured_analysis(contents)
+        else:
+            result = _analyze_large_document(prompt_base, document_text)
 
-        response = client.models.generate_content(
-            model=ANALYSIS_MODEL,
-            contents=contents,
-            config=GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=analysis_schema
-            )
-        )
-
-        result = json.loads(response.text)
         return result
 
     except HTTPException:
