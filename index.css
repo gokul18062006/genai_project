@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #f6fafc;
+  --text: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Manrope', ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at 10% 10%, #d8f6ff 0%, #f6fafc 45%, #fff8ec 100%);
+}
+
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: 0.45;
+  animation: floaty 16s ease-in-out infinite;
+}
+
+.ambient-orb-cyan {
+  width: 360px;
+  height: 360px;
+  top: -120px;
+  right: -80px;
+  background: #67e8f9;
+}
+
+.ambient-orb-amber {
+  width: 300px;
+  height: 300px;
+  bottom: 10%;
+  left: -90px;
+  background: #fcd34d;
+  animation-delay: 2s;
+}
+
+.fade-in-stagger > * {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: rise 0.45s ease forwards;
+}
+
+.fade-in-stagger > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.fade-in-stagger > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}

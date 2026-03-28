@@ -58,13 +58,13 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
     }
 
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div className="bg-white/95 p-6 rounded-3xl shadow-lg border border-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <h2 className="text-xl font-bold text-slate-700 flex items-center">
-                <Icon name="file" className="h-6 w-6 mr-2 text-indigo-500" />
+                <h2 className="text-xl font-bold text-slate-800 flex items-center">
+                <Icon name="file" className="h-6 w-6 mr-2 text-cyan-700" />
                 Your Legal Document
                 </h2>
-                <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-2.5 py-1">
+                <span className="text-xs font-semibold text-cyan-800 bg-cyan-50 border border-cyan-200 rounded-full px-2.5 py-1">
                     .txt / .pdf supported
                 </span>
             </div>
@@ -73,9 +73,9 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
             </p>
 
             {uploadedFile ? (
-                <div className="w-full h-64 p-5 border border-indigo-200 rounded-xl bg-gradient-to-b from-indigo-50 to-white flex flex-col items-center justify-center">
-                    <div className="h-14 w-14 rounded-xl bg-white border border-indigo-100 flex items-center justify-center">
-                        <Icon name="document" className="h-8 w-8 text-indigo-500" />
+                <div className="w-full h-64 p-5 border border-cyan-200 rounded-2xl bg-gradient-to-b from-cyan-50 to-white flex flex-col items-center justify-center">
+                    <div className="h-14 w-14 rounded-2xl bg-white border border-cyan-100 flex items-center justify-center">
+                        <Icon name="document" className="h-8 w-8 text-cyan-700" />
                     </div>
                     <p className="font-semibold mt-3 text-slate-800 text-center break-all">{uploadedFile.name}</p>
                     <p className="text-xs text-slate-500 mt-1">Document uploaded and ready for analysis</p>
@@ -94,7 +94,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                         value={documentText}
                         onChange={(e) => setDocumentText(e.target.value)}
                         placeholder="Paste legal text here..."
-                        className="w-full h-64 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out resize-y"
+                        className="w-full h-64 p-4 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out resize-y"
                         disabled={isLoading}
                     />
                     <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
@@ -115,7 +115,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                  <button
                     onClick={handleUploadClick}
                     disabled={isLoading}
-                    className="w-full sm:w-auto flex items-center justify-center bg-white text-slate-700 font-semibold py-3 px-4 rounded-lg border border-slate-300 hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed transition duration-150 ease-in-out"
+                    className="w-full sm:w-auto flex items-center justify-center bg-white text-slate-700 font-semibold py-3 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed transition duration-150 ease-in-out"
                 >
                     <Icon name="upload" className="h-5 w-5 mr-2" />
                     Upload Document
@@ -123,7 +123,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                 <button
                     onClick={onAnalyze}
                     disabled={isLoading || (!documentText.trim() && !uploadedFile)}
-                    className="w-full sm:flex-1 flex items-center justify-center bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed transition duration-150 ease-in-out"
+                    className="w-full sm:flex-1 flex items-center justify-center bg-gradient-to-r from-cyan-700 to-teal-700 text-white font-semibold py-3 px-4 rounded-xl hover:from-cyan-800 hover:to-teal-800 disabled:from-cyan-300 disabled:to-teal-300 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-sm"
                 >
                     {isLoading ? (
                         <>
@@ -139,8 +139,8 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                 </button>
             </div>
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">Step 1: Upload or paste your document</div>
-                <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">Step 2: Click Analyze to generate insights</div>
+                <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">Step 1: Upload or paste your document</div>
+                <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">Step 2: Click Analyze to generate insights</div>
             </div>
         </div>
     );

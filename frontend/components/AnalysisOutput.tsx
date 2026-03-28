@@ -68,18 +68,18 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
     ];
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200 min-h-[400px]">
+        <div className="bg-white/95 p-6 rounded-3xl shadow-lg border border-slate-200 min-h-[400px]">
             <div className="mb-4">
-                <nav className="bg-slate-100 p-1 rounded-lg flex flex-wrap space-x-1" aria-label="Tabs">
+                <nav className="bg-slate-100/90 p-1.5 rounded-2xl flex flex-wrap gap-1" aria-label="Tabs">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`${
                                 activeTab === tab.id
-                                    ? 'bg-white shadow text-indigo-600'
+                                    ? 'bg-white shadow text-cyan-800'
                                     : 'text-slate-600 hover:bg-slate-200 hover:text-slate-800'
-                            } flex-1 whitespace-nowrap py-2.5 px-2 rounded-md font-medium text-sm flex items-center justify-center transition-all duration-200 min-w-max`}
+                            } flex-1 whitespace-nowrap py-2.5 px-2 rounded-xl font-medium text-sm flex items-center justify-center transition-all duration-200 min-w-max`}
                         >
                             <Icon name={tab.icon} className="h-5 w-5 mr-2" />
                             {tab.label}
@@ -96,7 +96,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                                 {analysis.riskAnalysis.map((item, index) => {
                                     const presentation = getRiskPresentation(item.severity);
                                     return (
-                                    <div key={index} className={`p-4 rounded-lg border-l-4 ${presentation.colorClasses}`}>
+                                    <div key={index} className={`p-4 rounded-2xl border-l-4 ${presentation.colorClasses}`}>
                                         <div className="flex items-start">
                                             <Icon name={presentation.icon} className={`h-6 w-6 mr-3 flex-shrink-0 ${presentation.iconColor}`} />
                                             <div className="flex-grow">
@@ -132,7 +132,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                                 })}
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center p-8 text-center bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex flex-col items-center justify-center p-8 text-center bg-green-50 rounded-2xl border border-green-200">
                                 <Icon name="shield-check" className="h-12 w-12 text-green-500" />
                                 <h4 className="mt-4 font-semibold text-green-800">All Clear!</h4>
                                 <p className="text-slate-600">Our analysis did not identify any major risks in this document.</p>
@@ -144,11 +144,11 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                     <div>
                         <h3 className="text-lg font-semibold mb-4 text-slate-800">Document Details</h3>
                         <ul className="space-y-3">
-                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-xl">
                                 <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Document Type:</strong>
                                 <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.documentType}</span>
                             </li>
-                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-xl">
                                 <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Parties / Entities:</strong>
                                 <span className="w-full sm:w-2/3 text-slate-800">
                                     {analysis.documentDetails.partiesOrEntities.length > 0
@@ -156,19 +156,19 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                                         : 'Not specified'}
                                 </span>
                             </li>
-                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-xl">
                                 <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Date:</strong>
                                 <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.date}</span>
                             </li>
-                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-xl">
                                 <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Duration / Term:</strong>
                                 <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.duration}</span>
                             </li>
-                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-xl">
                                 <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Jurisdiction:</strong>
                                 <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.jurisdiction}</span>
                             </li>
-                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-md">
+                            <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-xl">
                                 <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Purpose:</strong>
                                 <span className="w-full sm:w-2/3 text-slate-800">{analysis.documentDetails.purpose}</span>
                             </li>
@@ -192,7 +192,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                          <h3 className="text-lg font-semibold mb-2 text-slate-800">Highlighted Clauses</h3>
                         <ul className="space-y-4">
                             {analysis.keyClauses.map((item, index) => (
-                                <li key={index} className="p-4 bg-slate-50 rounded-md border border-slate-200">
+                                <li key={index} className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                                     <div className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${getClauseChipColor(item.type)}`}>
                                         {item.type}
                                     </div>
@@ -213,7 +213,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                             <button
                                 onClick={onTranslate}
                                 disabled={isTranslating}
-                                className="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300 transition duration-150 flex items-center"
+                                className="bg-gradient-to-r from-cyan-700 to-teal-700 text-white font-semibold py-2 px-4 rounded-xl hover:from-cyan-800 hover:to-teal-800 disabled:from-cyan-300 disabled:to-teal-300 transition duration-150 flex items-center"
                             >
                                 {isTranslating ? <Loader /> : <Icon name="language" className="h-5 w-5 mr-2"/>}
                                 Translate
@@ -221,7 +221,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                          </div>
                          {isTranslating && <p className="text-slate-500">Translating...</p>}
                          {translation && !isTranslating && (
-                            <div className="mt-4 p-4 bg-slate-50 rounded-md border border-slate-200">
+                               <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
                                  <h4 className="font-semibold text-slate-800">Translation:</h4>
                                  <p className="text-slate-600 whitespace-pre-wrap">{translation}</p>
                             </div>
