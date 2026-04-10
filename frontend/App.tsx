@@ -47,7 +47,8 @@ const App: React.FC = () => {
 
         } catch (err) {
             console.error(err);
-            setError('Failed to analyze the document. Please check your API key and try again.');
+            const message = err instanceof Error ? err.message : 'Failed to analyze the document.';
+            setError(message);
         } finally {
             setIsLoading(false);
         }
@@ -64,7 +65,8 @@ const App: React.FC = () => {
             setTranslatedText(translation);
         } catch (err) {
             console.error(err);
-            setError('Failed to translate the text.');
+            const message = err instanceof Error ? err.message : 'Failed to translate the text.';
+            setError(message);
         } finally {
             setIsTranslating(false);
         }
@@ -85,7 +87,8 @@ const App: React.FC = () => {
         } catch (err)
  {
             console.error(err);
-            setChatMessages(prev => [...prev, { sender: 'ai', text: 'Sorry, I encountered an error. Please try again.' }]);
+            const message = err instanceof Error ? err.message : 'Sorry, I encountered an error. Please try again.';
+            setChatMessages(prev => [...prev, { sender: 'ai', text: message }]);
         } finally {
             setIsChatting(false);
         }

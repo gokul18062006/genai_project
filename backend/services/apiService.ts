@@ -1,7 +1,7 @@
 import type { AnalysisResult, UploadedFile } from '../../types';
 
-// Backend API URL - update this if your backend runs on a different port
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+// Backend API URL - defaults to 8001 where current local backend is running.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
 
 interface AnalyzeDocumentParams {
     documentText?: string;
