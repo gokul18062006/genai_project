@@ -58,9 +58,9 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
     }
 
     return (
-        <div className="bg-white/95 p-6 rounded-3xl shadow-lg border border-slate-200">
+        <div className="glass-panel p-6 rounded-3xl gradient-ring">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <h2 className="text-xl font-bold text-slate-800 flex items-center">
+                <h2 className="section-title text-xl font-bold text-slate-800 flex items-center">
                 <Icon name="file" className="h-6 w-6 mr-2 text-cyan-700" />
                 Your Legal Document
                 </h2>
@@ -73,7 +73,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
             </p>
 
             {uploadedFile ? (
-                <div className="w-full h-64 p-5 border border-cyan-200 rounded-2xl bg-gradient-to-b from-cyan-50 to-white flex flex-col items-center justify-center">
+                <div className="w-full h-64 p-5 border border-cyan-200 rounded-2xl bg-gradient-to-b from-cyan-50 via-white to-amber-50/40 flex flex-col items-center justify-center">
                     <div className="h-14 w-14 rounded-2xl bg-white border border-cyan-100 flex items-center justify-center">
                         <Icon name="document" className="h-8 w-8 text-cyan-700" />
                     </div>
@@ -94,7 +94,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                         value={documentText}
                         onChange={(e) => setDocumentText(e.target.value)}
                         placeholder="Paste legal text here..."
-                        className="w-full h-64 p-4 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out resize-y"
+                        className="w-full h-64 p-4 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-white/95 transition duration-150 ease-in-out resize-y"
                         disabled={isLoading}
                     />
                     <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
@@ -123,7 +123,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                 <button
                     onClick={onAnalyze}
                     disabled={isLoading || (!documentText.trim() && !uploadedFile)}
-                    className="w-full sm:flex-1 flex items-center justify-center bg-gradient-to-r from-cyan-700 to-teal-700 text-white font-semibold py-3 px-4 rounded-xl hover:from-cyan-800 hover:to-teal-800 disabled:from-cyan-300 disabled:to-teal-300 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-sm"
+                    className="w-full sm:flex-1 flex items-center justify-center bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl hover:from-cyan-800 hover:via-teal-800 hover:to-emerald-800 disabled:from-cyan-300 disabled:to-teal-300 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-sm"
                 >
                     {isLoading ? (
                         <>

@@ -68,7 +68,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
     ];
 
     return (
-        <div className="bg-white/95 p-6 rounded-3xl shadow-lg border border-slate-200 min-h-[400px]">
+        <div className="glass-panel p-6 rounded-3xl min-h-[400px] gradient-ring">
             <div className="mb-4">
                 <nav className="bg-slate-100/90 p-1.5 rounded-2xl flex flex-wrap gap-1" aria-label="Tabs">
                     {tabs.map(tab => (
@@ -77,7 +77,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                             onClick={() => setActiveTab(tab.id)}
                             className={`${
                                 activeTab === tab.id
-                                    ? 'bg-white shadow text-cyan-800'
+                                    ? 'bg-white shadow text-cyan-800 border border-cyan-200'
                                     : 'text-slate-600 hover:bg-slate-200 hover:text-slate-800'
                             } flex-1 whitespace-nowrap py-2.5 px-2 rounded-xl font-medium text-sm flex items-center justify-center transition-all duration-200 min-w-max`}
                         >
@@ -90,7 +90,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
             <div className="prose max-w-none prose-slate">
                  {activeTab === 'risk' && (
                     <div>
-                        <h3 className="text-lg font-semibold mb-4 text-slate-800">Risk & Mitigation Analysis</h3>
+                        <h3 className="section-title text-lg font-semibold mb-4 text-slate-800">Risk & Mitigation Analysis</h3>
                         {analysis.riskAnalysis && analysis.riskAnalysis.length > 0 ? (
                             <div className="space-y-4">
                                 {analysis.riskAnalysis.map((item, index) => {
@@ -142,7 +142,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                 )}
                  {activeTab === 'agreement' && (
                     <div>
-                        <h3 className="text-lg font-semibold mb-4 text-slate-800">Document Details</h3>
+                        <h3 className="section-title text-lg font-semibold mb-4 text-slate-800">Document Details</h3>
                         <ul className="space-y-3">
                             <li className="flex flex-col sm:flex-row items-start p-3 bg-slate-50 rounded-xl">
                                 <strong className="w-full sm:w-1/3 font-semibold text-slate-600 mb-1 sm:mb-0">Document Type:</strong>
@@ -177,19 +177,19 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                 )}
                 {activeTab === 'simplified' && (
                     <div>
-                        <h3 className="text-lg font-semibold mb-2 text-slate-800">Plain English Version</h3>
+                        <h3 className="section-title text-lg font-semibold mb-2 text-slate-800">Plain English Version</h3>
                         <p className="text-slate-600 whitespace-pre-wrap">{analysis.simplifiedText}</p>
                     </div>
                 )}
                 {activeTab === 'summary' && (
                      <div>
-                        <h3 className="text-lg font-semibold mb-2 text-slate-800">Executive Summary</h3>
+                        <h3 className="section-title text-lg font-semibold mb-2 text-slate-800">Executive Summary</h3>
                         <p className="text-slate-600 whitespace-pre-wrap">{analysis.summary}</p>
                     </div>
                 )}
                 {activeTab === 'clauses' && (
                     <div>
-                         <h3 className="text-lg font-semibold mb-2 text-slate-800">Highlighted Clauses</h3>
+                         <h3 className="section-title text-lg font-semibold mb-2 text-slate-800">Highlighted Clauses</h3>
                         <ul className="space-y-4">
                             {analysis.keyClauses.map((item, index) => (
                                 <li key={index} className="p-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -207,13 +207,13 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                 )}
                 {activeTab === 'translate' && (
                     <div>
-                         <h3 className="text-lg font-semibold mb-2 text-slate-800">Translate Simplified Text</h3>
+                         <h3 className="section-title text-lg font-semibold mb-2 text-slate-800">Translate Simplified Text</h3>
                          <div className="flex items-center space-x-2 mb-4">
                             <LanguageSelector selectedLanguage={targetLanguage} onSelectLanguage={setTargetLanguage} />
                             <button
                                 onClick={onTranslate}
                                 disabled={isTranslating}
-                                className="bg-gradient-to-r from-cyan-700 to-teal-700 text-white font-semibold py-2 px-4 rounded-xl hover:from-cyan-800 hover:to-teal-800 disabled:from-cyan-300 disabled:to-teal-300 transition duration-150 flex items-center"
+                                className="bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 text-white font-semibold py-2 px-4 rounded-xl hover:from-cyan-800 hover:via-teal-800 hover:to-emerald-800 disabled:from-cyan-300 disabled:to-teal-300 transition duration-150 flex items-center"
                             >
                                 {isTranslating ? <Loader /> : <Icon name="language" className="h-5 w-5 mr-2"/>}
                                 Translate

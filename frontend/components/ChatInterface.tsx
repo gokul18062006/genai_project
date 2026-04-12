@@ -33,16 +33,16 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
     }
 
     return (
-        <div className="bg-white/95 p-6 rounded-3xl shadow-lg border border-slate-200 flex flex-col h-[520px]">
-            <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center">
+        <div className="glass-panel p-6 rounded-3xl flex flex-col h-[520px] gradient-ring">
+            <h2 className="section-title text-xl font-bold text-slate-800 mb-4 flex items-center">
                 <Icon name="chat" className="h-6 w-6 mr-2 text-cyan-700" />
                 Ask a Question
             </h2>
-            <div className="flex-grow overflow-y-auto mb-4 pr-2 space-y-4">
+            <div className="flex-grow overflow-y-auto mb-4 pr-2 space-y-4 rounded-2xl bg-slate-50/65 border border-slate-200 p-3">
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex items-start gap-2.5 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
                         {msg.sender === 'ai' && <div className="flex-shrink-0 h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center"><Icon name="sparkles" className="h-5 w-5 text-cyan-700"/></div>}
-                        <div className={`flex flex-col w-full max-w-[340px] leading-1.5 p-4 border border-slate-200 ${msg.sender === 'user' ? 'bg-gradient-to-r from-cyan-700 to-teal-700 rounded-2xl text-white border-cyan-700' : 'bg-slate-50 rounded-2xl text-slate-800'}`}>
+                        <div className={`flex flex-col w-full max-w-[340px] leading-1.5 p-4 border border-slate-200 ${msg.sender === 'user' ? 'bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 rounded-2xl text-white border-cyan-700' : 'bg-white rounded-2xl text-slate-800'}`}>
                             <p className="text-sm font-normal">{msg.text}</p>
                         </div>
                     </div>
@@ -50,7 +50,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                 {isLoading && (
                      <div className="flex items-start gap-2.5">
                         <div className="flex-shrink-0 h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center"><Icon name="sparkles" className="h-5 w-5 text-cyan-700"/></div>
-                        <div className="flex flex-col w-full max-w-[340px] leading-1.5 p-4 border border-slate-200 bg-slate-50 rounded-2xl">
+                        <div className="flex flex-col w-full max-w-[340px] leading-1.5 p-4 border border-slate-200 bg-white rounded-2xl">
                             <div className="flex items-center space-x-2">
                                 <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
                                 <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse [animation-delay:0.2s]"></div>
@@ -68,13 +68,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="e.g., What is the penalty clause?"
-                    className="flex-grow p-3 border border-slate-300 rounded-l-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-150"
+                    className="flex-grow p-3 border border-slate-300 rounded-l-xl bg-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-150"
                     disabled={isLoading}
                 />
                 <button
                     onClick={handleSend}
                     disabled={isLoading || !input.trim()}
-                    className="bg-gradient-to-r from-cyan-700 to-teal-700 text-white font-semibold p-3 rounded-r-xl hover:from-cyan-800 hover:to-teal-800 disabled:from-cyan-300 disabled:to-teal-300 disabled:cursor-not-allowed transition duration-150"
+                    className="bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 text-white font-semibold p-3 rounded-r-xl hover:from-cyan-800 hover:via-teal-800 hover:to-emerald-800 disabled:from-cyan-300 disabled:to-teal-300 disabled:cursor-not-allowed transition duration-150"
                 >
                     <Icon name="send" className="h-6 w-6"/>
                 </button>

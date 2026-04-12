@@ -1,8 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 
 :root {
-  --bg: #f6fafc;
-  --text: #0f172a;
+  --bg: #f4f8fb;
+  --surface: rgba(255, 255, 255, 0.9);
+  --text: #102033;
+  --text-soft: #53647c;
+  --line: rgba(15, 23, 42, 0.1);
+  --brand: #0f766e;
+  --brand-deep: #155e75;
+  --accent: #f59e0b;
 }
 
 * {
@@ -19,12 +25,28 @@ body {
   margin: 0;
   font-family: 'Manrope', ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at 10% 10%, #d8f6ff 0%, #f6fafc 45%, #fff8ec 100%);
+  background:
+    radial-gradient(circle at 14% 12%, #b7f0ff 0%, rgba(183, 240, 255, 0) 38%),
+    radial-gradient(circle at 84% 20%, #ffebbc 0%, rgba(255, 235, 188, 0) 30%),
+    linear-gradient(145deg, #f4f8fb 0%, #f8fbff 42%, #fff8ec 100%);
 }
 
 .app-shell {
   position: relative;
   isolation: isolate;
+}
+
+.app-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -20;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black 55%, transparent 100%);
 }
 
 .ambient-orb {
@@ -56,6 +78,31 @@ body {
   opacity: 0;
   transform: translateY(8px);
   animation: rise 0.45s ease forwards;
+}
+
+.glass-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 40px -26px rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+.section-title {
+  font-family: 'Sora', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.gradient-ring {
+  position: relative;
+}
+
+.gradient-ring::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(125deg, rgba(8, 145, 178, 0.32), rgba(245, 158, 11, 0.32));
 }
 
 .fade-in-stagger > *:nth-child(2) {
