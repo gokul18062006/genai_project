@@ -97,10 +97,6 @@ const App: React.FC = () => {
 
     return (
         <div className="min-h-screen text-slate-900 font-sans app-shell">
-            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-                <div className="ambient-orb ambient-orb-cyan" />
-                <div className="ambient-orb ambient-orb-amber" />
-            </div>
             <Header />
             <main className="container mx-auto px-4 py-6 md:px-8 md:py-10">
                 <div className="max-w-7xl mx-auto space-y-6">
@@ -110,31 +106,9 @@ const App: React.FC = () => {
                             <p>{error}</p>
                         </div>
                     )}
-                    <section className="glass-panel rounded-3xl p-5 md:p-7 gradient-ring fade-in-stagger">
-                        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-                            <div>
-                                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800">
-                                    <Icon name="sparkles" className="h-4 w-4" />
-                                    AI-powered legal readability
-                                </div>
-                                <h2 className="section-title mt-3 text-2xl md:text-3xl font-extrabold text-slate-900">Understand legal documents in minutes</h2>
-                                <p className="mt-2 text-sm md:text-base text-slate-600 max-w-3xl">Upload a contract, detect risky clauses, get plain-language explanations, and ask context-aware follow-up questions instantly.</p>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 text-center w-full lg:w-auto">
-                                <div className="rounded-2xl bg-white/95 border border-slate-200 px-4 py-3 min-w-[90px]">
-                                    <p className="text-lg font-extrabold text-cyan-800">1</p>
-                                    <p className="text-xs text-slate-600">Upload</p>
-                                </div>
-                                <div className="rounded-2xl bg-white/95 border border-slate-200 px-4 py-3 min-w-[90px]">
-                                    <p className="text-lg font-extrabold text-cyan-800">2</p>
-                                    <p className="text-xs text-slate-600">Analyze</p>
-                                </div>
-                                <div className="rounded-2xl bg-white/95 border border-slate-200 px-4 py-3 min-w-[90px]">
-                                    <p className="text-lg font-extrabold text-cyan-800">3</p>
-                                    <p className="text-xs text-slate-600">Ask</p>
-                                </div>
-                            </div>
-                        </div>
+                    <section className="glass-panel rounded-2xl p-5 md:p-6">
+                        <h2 className="section-title text-2xl font-bold text-slate-900">Legal document analysis</h2>
+                        <p className="mt-2 text-sm md:text-base text-slate-600">Upload your document to review risks, key clauses, simplified text, summary, and translation.</p>
                     </section>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 fade-in-stagger">
                         <div className="rounded-2xl glass-panel px-4 py-3 text-sm text-slate-700">1. Add your legal document</div>
@@ -155,19 +129,15 @@ const App: React.FC = () => {
                         <div className="lg:col-span-2 flex flex-col gap-8">
                             {isLoading && (
                                 <div className="w-full h-full flex flex-col items-center justify-center glass-panel rounded-3xl p-8 min-h-[420px] text-center">
-                                    <Icon name="loader" className="h-12 w-12 animate-spin text-cyan-700" />
+                                    <Icon name="loader" className="h-12 w-12 animate-spin text-slate-700" />
                                     <p className="mt-4 text-lg font-semibold text-slate-700">Analyzing your document</p>
                                     <p className="text-slate-500">Extracting clauses, risks, and key details. This may take a moment.</p>
                                 </div>
                             )}
                         
                             {!isLoading && !analysisResult && (
-                                <div className="w-full h-full flex flex-col justify-center glass-panel rounded-3xl p-8 min-h-[420px]">
-                                    <div className="inline-flex items-center gap-2 self-start rounded-full bg-cyan-50 border border-cyan-200 px-3 py-1 text-xs font-semibold text-cyan-800">
-                                        <Icon name="sparkles" className="h-4 w-4" />
-                                        Smart legal assistant
-                                    </div>
-                                    <h3 className="mt-4 text-2xl md:text-3xl font-bold text-slate-900">Get instant legal clarity</h3>
+                                <div className="w-full h-full flex flex-col justify-center glass-panel rounded-2xl p-8 min-h-[420px]">
+                                    <h3 className="mt-1 text-2xl md:text-3xl font-bold text-slate-900">Get instant legal clarity</h3>
                                     <p className="text-slate-500 mt-2 max-w-xl">Upload or paste your document and get simplified text, risk analysis, key clauses, and a chat assistant for follow-up questions.</p>
                                     <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">

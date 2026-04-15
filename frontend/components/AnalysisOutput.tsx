@@ -68,7 +68,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
     ];
 
     return (
-        <div className="glass-panel p-6 rounded-3xl min-h-[400px] gradient-ring">
+        <div className="glass-panel p-6 rounded-2xl min-h-[400px]">
             <div className="mb-4">
                 <nav className="bg-slate-100/90 p-1.5 rounded-2xl flex flex-wrap gap-1" aria-label="Tabs">
                     {tabs.map(tab => (
@@ -77,7 +77,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                             onClick={() => setActiveTab(tab.id)}
                             className={`${
                                 activeTab === tab.id
-                                    ? 'bg-white shadow text-cyan-800 border border-cyan-200'
+                                    ? 'bg-white shadow text-slate-900 border border-slate-300'
                                     : 'text-slate-600 hover:bg-slate-200 hover:text-slate-800'
                             } flex-1 whitespace-nowrap py-2.5 px-2 rounded-xl font-medium text-sm flex items-center justify-center transition-all duration-200 min-w-max`}
                         >
@@ -213,7 +213,7 @@ export const AnalysisOutput: React.FC<AnalysisOutputProps> = ({ analysis, transl
                             <button
                                 onClick={onTranslate}
                                 disabled={isTranslating}
-                                className="bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 text-white font-semibold py-2 px-4 rounded-xl hover:from-cyan-800 hover:via-teal-800 hover:to-emerald-800 disabled:from-cyan-300 disabled:to-teal-300 transition duration-150 flex items-center"
+                                className="bg-slate-800 text-white font-semibold py-2 px-4 rounded-xl hover:bg-slate-900 disabled:bg-slate-300 transition duration-150 flex items-center"
                             >
                                 {isTranslating ? <Loader /> : <Icon name="language" className="h-5 w-5 mr-2"/>}
                                 Translate

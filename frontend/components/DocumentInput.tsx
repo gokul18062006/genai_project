@@ -58,13 +58,13 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
     }
 
     return (
-        <div className="glass-panel p-6 rounded-3xl gradient-ring">
+        <div className="glass-panel p-6 rounded-2xl">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <h2 className="section-title text-xl font-bold text-slate-800 flex items-center">
-                <Icon name="file" className="h-6 w-6 mr-2 text-cyan-700" />
+                <Icon name="file" className="h-6 w-6 mr-2 text-slate-700" />
                 Your Legal Document
                 </h2>
-                <span className="text-xs font-semibold text-cyan-800 bg-cyan-50 border border-cyan-200 rounded-full px-2.5 py-1">
+                <span className="text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-full px-2.5 py-1">
                     .txt / .pdf supported
                 </span>
             </div>
@@ -73,9 +73,9 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
             </p>
 
             {uploadedFile ? (
-                <div className="w-full h-64 p-5 border border-cyan-200 rounded-2xl bg-gradient-to-b from-cyan-50 via-white to-amber-50/40 flex flex-col items-center justify-center">
-                    <div className="h-14 w-14 rounded-2xl bg-white border border-cyan-100 flex items-center justify-center">
-                        <Icon name="document" className="h-8 w-8 text-cyan-700" />
+                <div className="w-full h-64 p-5 border border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center">
+                    <div className="h-14 w-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center">
+                        <Icon name="document" className="h-8 w-8 text-slate-700" />
                     </div>
                     <p className="font-semibold mt-3 text-slate-800 text-center break-all">{uploadedFile.name}</p>
                     <p className="text-xs text-slate-500 mt-1">Document uploaded and ready for analysis</p>
@@ -94,7 +94,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                         value={documentText}
                         onChange={(e) => setDocumentText(e.target.value)}
                         placeholder="Paste legal text here..."
-                        className="w-full h-64 p-4 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-white/95 transition duration-150 ease-in-out resize-y"
+                        className="w-full h-64 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-slate-400 bg-white transition duration-150 ease-in-out resize-y"
                         disabled={isLoading}
                     />
                     <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
@@ -123,7 +123,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ documentText, setD
                 <button
                     onClick={onAnalyze}
                     disabled={isLoading || (!documentText.trim() && !uploadedFile)}
-                    className="w-full sm:flex-1 flex items-center justify-center bg-gradient-to-r from-cyan-700 via-teal-700 to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl hover:from-cyan-800 hover:via-teal-800 hover:to-emerald-800 disabled:from-cyan-300 disabled:to-teal-300 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-sm"
+                    className="w-full sm:flex-1 flex items-center justify-center bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl hover:bg-slate-900 disabled:bg-slate-300 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-sm"
                 >
                     {isLoading ? (
                         <>
